@@ -3,8 +3,8 @@
   <p align="center"><strong>Your AI agents are burning money. AgentMeter shows you exactly how much.</strong></p>
   <p align="center">
     <a href="https://github.com/saileshr/agentmeter-sdk/actions"><img src="https://github.com/saileshr/agentmeter-sdk/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-    <a href="https://pypi.org/project/agentmeter/"><img src="https://img.shields.io/pypi/v/agentmeter" alt="PyPI"></a>
-    <a href="https://pypi.org/project/agentmeter/"><img src="https://img.shields.io/pypi/pyversions/agentmeter" alt="Python"></a>
+    <a href="https://pypi.org/project/agentmeter-sdk/"><img src="https://img.shields.io/pypi/v/agentmeter-sdk" alt="PyPI"></a>
+    <a href="https://pypi.org/project/agentmeter-sdk/"><img src="https://img.shields.io/pypi/pyversions/agentmeter-sdk" alt="Python"></a>
     <a href="https://github.com/saileshr/agentmeter-sdk/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License"></a>
   </p>
 </p>
@@ -38,7 +38,7 @@ AgentMeter is a lightweight Python SDK that tracks every LLM call, calculates th
 ## Quickstart (60 seconds)
 
 ```bash
-pip install agentmeter[openai]
+pip install agentmeter-sdk[openai]
 ```
 
 ```python
@@ -182,10 +182,10 @@ The SDK never phones home by default. Remote pricing updates are always opt-in.
 **Zero dependencies.** The core SDK uses only Python stdlib. Framework adapters (OpenAI, Anthropic) are optional extras.
 
 ```bash
-pip install agentmeter            # core only — zero deps
-pip install agentmeter[openai]    # + OpenAI SDK
-pip install agentmeter[anthropic] # + Anthropic SDK
-pip install agentmeter[all]       # everything
+pip install agentmeter-sdk            # core only — zero deps
+pip install agentmeter-sdk[openai]    # + OpenAI SDK
+pip install agentmeter-sdk[anthropic] # + Anthropic SDK
+pip install agentmeter-sdk[all]       # everything
 ```
 
 ## Configuration

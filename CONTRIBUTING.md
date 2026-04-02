@@ -84,7 +84,7 @@ Edit the `_BUILTIN_PRICING_RAW` dict in `src/agentmeter/cost.py`. Prices are per
 - Python 3.10+ (use `X | Y` union syntax, `slots=True` on dataclasses)
 - Lint with `ruff` (config in `pyproject.toml`)
 - No external dependencies in core — only stdlib
-- Framework SDKs are optional extras (`pip install agentmeter[openai]`)
+- Framework SDKs are optional extras (`pip install agentmeter-sdk[openai]`)
 - Use `from __future__ import annotations` in every file
 - Privacy by default — never capture message content
 

@@ -8,7 +8,7 @@ This generates real data for blog posts and content pieces showing
 the true cost differences between models.
 
 Requirements:
-    pip install agentmeter[openai] anthropic
+    pip install agentmeter-sdk[openai] anthropic
 
     Set environment variables:
         OPENAI_API_KEY=sk-...

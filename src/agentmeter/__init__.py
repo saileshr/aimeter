@@ -45,7 +45,7 @@ def __getattr__(name: str):
             package = name.replace("track_", "")
             raise ImportError(
                 f"agentmeter.{name} requires the '{package}' package. "
-                f"Install it with: pip install agentmeter[{package}]"
+                f"Install it with: pip install agentmeter-sdk[{package}]"
             ) from e
     raise AttributeError(f"module 'agentmeter' has no attribute {name}")
 
