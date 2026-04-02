@@ -1,0 +1,38 @@
+name: Framework Adapter Request
+description: Request support for a new LLM framework or provider
+labels: ["adapter", "help wanted"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Want AgentMeter to support a new framework? Let us know!
+        Even better — adapter PRs are one of the easiest ways to contribute (~20 lines of code). See CONTRIBUTING.md.
+  - type: input
+    id: framework
+    attributes:
+      label: Framework / provider name
+      placeholder: "LangChain, CrewAI, Cohere, etc."
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Link to framework
+      placeholder: "https://github.com/..."
+    validations:
+      required: true
+  - type: textarea
+    id: usage
+    attributes:
+      label: How you use it
+      description: Brief description of your setup and why you need this adapter.
+    validations:
+      required: true
+  - type: dropdown
+    id: willing
+    attributes:
+      label: Would you be willing to contribute this adapter?
+      options:
+        - "Yes, I'd like to submit a PR"
+        - "I can help test but not write the code"
+        - "No, I'm just requesting it"
