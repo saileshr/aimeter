@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from agentledger.types import LLMEvent
+    from aimeter.types import LLMEvent
 
 
 @runtime_checkable

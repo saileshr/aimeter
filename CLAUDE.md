@@ -1,8 +1,8 @@
-# CLAUDE.md — AgentLedger Development Guide
+# CLAUDE.md — AIMeter Development Guide
 
-## What is AgentLedger?
+## What is AIMeter?
 
-AgentLedger is open-source financial observability for AI agents. It tracks the real cost of running AI agents in production — per-agent, per-task, per-conversation — across any framework.
+AIMeter is open-source financial observability for AI agents. It tracks the real cost of running AI agents in production — per-agent, per-task, per-conversation — across any framework.
 
 Think of it as **the missing cost layer for agentic AI**: not just token counting, but full economic visibility including tool calls, retries, latency, and cost-per-outcome attribution.
 
@@ -11,8 +11,8 @@ Think of it as **the missing cost layer for agentic AI**: not just token countin
 ## Project Structure
 
 ```
-agentledger/
-├── agentledger/              # Core Python SDK
+aimeter/
+├── aimeter/              # Core Python SDK
 │   ├── __init__.py          # Public API exports
 │   ├── tracker.py           # Core tracking engine
 │   ├── cost_engine.py       # Token → dollar cost calculation
@@ -27,7 +27,7 @@ agentledger/
 │   ├── exporters/           # Where metered data goes
 │   │   ├── console.py       # Pretty-print to terminal
 │   │   ├── json_file.py     # JSON file output
-│   │   └── http.py          # POST to AgentLedger server or custom endpoint
+│   │   └── http.py          # POST to AIMeter server or custom endpoint
 │   └── outcomes.py          # Outcome attribution (cost-per-outcome mapping)
 ├── server/                  # Optional ingest + dashboard backend
 │   ├── api/                 # FastAPI endpoints
@@ -51,7 +51,7 @@ agentledger/
 │  (LangChain / CrewAI / AutoGen / Custom)             │
 │                                                       │
 │  ┌─────────────────────────────────────────────┐     │
-│  │         AgentLedger SDK (lightweight)         │     │
+│  │         AIMeter SDK (lightweight)         │     │
 │  │  - Wraps LLM calls, tool calls, agent steps │     │
 │  │  - Captures: tokens, latency, cost, outcome │     │
 │  │  - Async, non-blocking, <1ms overhead        │     │
@@ -91,15 +91,15 @@ agentledger/
 
 These are non-negotiable. Every PR should respect them.
 
-1. **Zero-config start.** `pip install agentledger` + 2 lines of code must produce useful output. No API keys, no server setup, no config files required for basic local usage.
+1. **Zero-config start.** `pip install aimeter` + 2 lines of code must produce useful output. No API keys, no server setup, no config files required for basic local usage.
 
-2. **Never block the agent.** All telemetry is async and fire-and-forget. AgentLedger must add <1ms overhead to any agent invocation. If it can't send an event, it silently drops it. The agent's job is more important than our metrics.
+2. **Never block the agent.** All telemetry is async and fire-and-forget. AIMeter must add <1ms overhead to any agent invocation. If it can't send an event, it silently drops it. The agent's job is more important than our metrics.
 
-3. **Privacy by default.** AgentLedger captures cost metadata (tokens, model, latency, tool names), NOT conversation content. Prompt/response capture is opt-in only and clearly documented.
+3. **Privacy by default.** AIMeter captures cost metadata (tokens, model, latency, tool names), NOT conversation content. Prompt/response capture is opt-in only and clearly documented.
 
-4. **Framework-agnostic core.** The core tracker and cost engine know nothing about LangChain, OpenAI, or any specific framework. Adapters are thin wrappers that translate framework-specific events into AgentLedger's unified event schema.
+4. **Framework-agnostic core.** The core tracker and cost engine know nothing about LangChain, OpenAI, or any specific framework. Adapters are thin wrappers that translate framework-specific events into AIMeter's unified event schema.
 
-5. **Outcome-aware.** This is what differentiates AgentLedger from token counters. We don't just track "this call used 1,500 tokens." We enable mapping costs to business outcomes: "this agent spent $0.47 to resolve this support ticket."
+5. **Outcome-aware.** This is what differentiates AIMeter from token counters. We don't just track "this call used 1,500 tokens." We enable mapping costs to business outcomes: "this agent spent $0.47 to resolve this support ticket."
 
 6. **Accuracy over estimation.** Cost calculations must use actual token counts from API responses, not estimates. The cost model registry must reflect real, current provider pricing.
 
@@ -111,7 +111,7 @@ This is the developer experience we're building toward. All code changes should 
 
 ```python
 # LangChain — 2 lines to add
-from agentledger import track
+from aimeter import track
 from langchain.agents import AgentExecutor
 
 agent = AgentExecutor(agent=my_agent, tools=my_tools)
@@ -123,7 +123,7 @@ result = tracked_agent.invoke({"input": "Help me reset my password"})
 
 ```python
 # OpenAI direct
-from agentledger import track_openai
+from aimeter import track_openai
 import openai
 
 client = track_openai(openai.OpenAI(), project="sales-agent")
@@ -132,7 +132,7 @@ client = track_openai(openai.OpenAI(), project="sales-agent")
 
 ```python
 # Outcome attribution
-from agentledger import record_outcome
+from aimeter import record_outcome
 
 record_outcome(
     agent_run_id=result.run_id,
@@ -144,7 +144,7 @@ record_outcome(
 
 ```python
 # Local report (no server needed)
-from agentledger import report
+from aimeter import report
 
 report(last="7d")
 # Prints a cost breakdown to the terminal: per-agent, per-model, per-project
@@ -181,7 +181,7 @@ When updating pricing:
 | Local storage | SQLite | Zero-config local dev experience |
 | Production storage | ClickHouse or TimescaleDB | For the hosted/self-hosted server |
 | Dashboard | React + Recharts | Real-time, interactive |
-| Package | PyPI (`agentledger`) | Published via GitHub Actions |
+| Package | PyPI (`aimeter`) | Published via GitHub Actions |
 | CI/CD | GitHub Actions | Lint, test, publish on tag |
 | Testing | pytest + pytest-asyncio | All async code must have async tests |
 
@@ -191,8 +191,8 @@ When updating pricing:
 
 ```bash
 # Clone and install in dev mode
-git clone https://github.com/<org>/agentledger.git
-cd agentledger
+git clone https://github.com/<org>/aimeter.git
+cd aimeter
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
@@ -214,9 +214,9 @@ python examples/langchain_basic.py
 
 ### Adding a new framework adapter
 
-1. Create a new file in `agentledger/adapters/`
+1. Create a new file in `aimeter/adapters/`
 2. Implement the adapter by wrapping the framework's LLM/tool calling interface
-3. The adapter should emit events using `agentledger.events.AgentEvent` — the unified schema
+3. The adapter should emit events using `aimeter.events.AgentEvent` — the unified schema
 4. Add a working example in `examples/`
 5. Add tests in `tests/adapters/`
 6. Update the framework support matrix in README.md
@@ -225,7 +225,7 @@ The adapter should be a thin wrapper. All cost calculation, storage, and export 
 
 ### Updating the cost model registry
 
-1. Edit `agentledger/cost_models.yaml`
+1. Edit `aimeter/cost_models.yaml`
 2. Include the provider's pricing page URL in your commit message
 3. Run `pytest tests/test_cost_engine.py` to verify calculations still pass
 
@@ -276,12 +276,12 @@ npm run dev
 
 If you're new to the codebase, read these in order:
 
-1. `agentledger/events.py` — the unified event schema. Everything flows through this.
-2. `agentledger/cost_engine.py` — how tokens get converted to dollars.
-3. `agentledger/tracker.py` — the core tracking logic.
-4. `agentledger/adapters/langchain.py` — the most complete adapter, use as a reference.
+1. `aimeter/events.py` — the unified event schema. Everything flows through this.
+2. `aimeter/cost_engine.py` — how tokens get converted to dollars.
+3. `aimeter/tracker.py` — the core tracking logic.
+4. `aimeter/adapters/langchain.py` — the most complete adapter, use as a reference.
 5. `examples/langchain_basic.py` — the simplest end-to-end usage.
 
 ---
 
-*AgentLedger is open-source under the Apache 2.0 license. Contributions welcome.*
+*AIMeter is open-source under the Apache 2.0 license. Contributions welcome.*

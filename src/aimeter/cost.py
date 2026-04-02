@@ -19,9 +19,9 @@ import urllib.request
 from dataclasses import dataclass
 from typing import Any
 
-from agentledger.types import CostBreakdown, TokenUsage
+from aimeter.types import CostBreakdown, TokenUsage
 
-logger = logging.getLogger("agentledger")
+logger = logging.getLogger("aimeter")
 
 
 @dataclass(frozen=True, slots=True)
@@ -107,7 +107,7 @@ class CostRegistry:
 
         if pricing is None:
             logger.debug(
-                "agentledger: unknown model '%s/%s' — cost will be $0.00. "
+                "aimeter: unknown model '%s/%s' — cost will be $0.00. "
                 "Use registry.register() to add custom pricing.",
                 provider,
                 model,
@@ -156,7 +156,7 @@ class CostRegistry:
     def update_from_url(self, url: str, timeout: float = 10.0) -> int:
         """Fetch pricing JSON from a URL and update the registry.
 
-        The JSON must be in the agentledger dict format:
+        The JSON must be in the aimeter dict format:
         {"provider": {"model": {"input_per_1k": ..., "output_per_1k": ...}}}
 
         Args:
@@ -170,7 +170,7 @@ class CostRegistry:
             urllib.error.URLError: If the request fails.
             json.JSONDecodeError: If the response is not valid JSON.
         """
-        req = urllib.request.Request(url, headers={"User-Agent": "agentledger"})
+        req = urllib.request.Request(url, headers={"User-Agent": "aimeter"})
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = json.loads(resp.read().decode("utf-8"))
         return self.update_from_dict(data)
@@ -194,7 +194,7 @@ class CostRegistry:
             "https://raw.githubusercontent.com/BerriAI/litellm/main/"
             "model_prices_and_context_window.json"
         )
-        req = urllib.request.Request(url, headers={"User-Agent": "agentledger"})
+        req = urllib.request.Request(url, headers={"User-Agent": "aimeter"})
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             raw = json.loads(resp.read().decode("utf-8"))
 
@@ -263,7 +263,7 @@ class CostRegistry:
             self._register_both(provider, model_name, pricing)
             count += 1
 
-        logger.info("agentledger: loaded %d models from litellm registry", count)
+        logger.info("aimeter: loaded %d models from litellm registry", count)
         return count
 
     @classmethod

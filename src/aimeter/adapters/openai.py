@@ -4,7 +4,7 @@ Wraps an OpenAI client to automatically track token usage and costs
 for all chat completion calls.
 
 Usage:
-    from agentledger import track_openai
+    from aimeter import track_openai
     import openai
 
     client = track_openai(openai.OpenAI(), project="my-agent")
@@ -17,8 +17,8 @@ from __future__ import annotations
 import time
 from typing import Any
 
-from agentledger.tracker import get_tracker
-from agentledger.types import LLMEvent, TokenUsage
+from aimeter.tracker import get_tracker
+from aimeter.types import LLMEvent, TokenUsage
 
 
 def _extract_usage(response: Any) -> TokenUsage:
@@ -162,7 +162,7 @@ def track_openai(
 
     Example:
         import openai
-        from agentledger import track_openai
+        from aimeter import track_openai
 
         client = track_openai(openai.OpenAI(), project="my-agent")
         response = client.chat.completions.create(

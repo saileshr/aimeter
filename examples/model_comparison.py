@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""AgentLedger Model Comparison Demo
+"""AIMeter Model Comparison Demo
 
 Runs the same set of realistic agent prompts across multiple LLM models
 (OpenAI + Anthropic) and generates a screenshot-ready cost report.
@@ -8,7 +8,7 @@ This generates real data for blog posts and content pieces showing
 the true cost differences between models.
 
 Requirements:
-    pip install agentledger[openai] anthropic
+    pip install aimeter[openai] anthropic
 
     Set environment variables:
         OPENAI_API_KEY=sk-...
@@ -35,17 +35,17 @@ if not openai_key and not anthropic_key:
 
 # --- Imports ---
 
-from agentledger import MemoryExporter, configure, record_outcome
-from agentledger.report import print_report
+from aimeter import MemoryExporter, configure, record_outcome
+from aimeter.report import print_report
 
 # Only import adapters for available keys
 if openai_key:
     import openai
-    from agentledger import track_openai
+    from aimeter import track_openai
 
 if anthropic_key:
     import anthropic
-    from agentledger import track_anthropic
+    from aimeter import track_anthropic
 
 # --- Configuration ---
 
@@ -186,13 +186,13 @@ def run_anthropic_model(model: str, mem: MemoryExporter) -> None:
 
 
 def main() -> None:
-    # Set up AgentLedger with memory exporter
+    # Set up AIMeter with memory exporter
     mem = MemoryExporter()
     configure(project="model-comparison", exporters=[mem])
 
     print()
     print("=" * 60)
-    print("  AgentLedger Model Comparison Demo")
+    print("  AIMeter Model Comparison Demo")
     print(f"  Running {len(PROMPTS)} realistic agent tasks across models")
     print("=" * 60)
     print()
@@ -223,7 +223,7 @@ def main() -> None:
     # Print the screenshot-ready report
     print_report(
         llm_events,
-        title="AgentLedger — Model Cost Comparison",
+        title="AIMeter — Model Cost Comparison",
     )
 
     # Print outcome attribution summary
@@ -288,7 +288,7 @@ def _print_outcome_summary(mem: MemoryExporter) -> None:
     print(f"  {BOLD}ROI:{RESET} {GREEN}{roi:.0f}x{RESET} (${total_value:.2f} value / ${total_cost:.4f} cost)")
     print()
     print(f"{BOLD}{CYAN}{'─' * 72}{RESET}")
-    print(f"{DIM}  Powered by AgentLedger — agentledger.ai{RESET}")
+    print(f"{DIM}  Powered by AIMeter — aimeter.ai{RESET}")
     print()
 
 

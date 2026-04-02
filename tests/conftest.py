@@ -1,1 +1,1 @@
-"""Shared test fixtures for AgentLedger."""
+"""Shared test fixtures for AIMeter."""

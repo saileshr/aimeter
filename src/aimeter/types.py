@@ -1,4 +1,4 @@
-"""Core data model for AgentLedger.
+"""Core data model for AIMeter.
 
 All types are plain dataclasses — no external dependencies.
 Privacy-by-default: no message content fields exist.
@@ -42,7 +42,7 @@ class CostBreakdown:
 class LLMEvent:
     """A single tracked LLM call.
 
-    This is the fundamental unit of data in AgentLedger.
+    This is the fundamental unit of data in AIMeter.
     Captures cost metadata only — never conversation content.
     """
 

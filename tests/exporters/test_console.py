@@ -2,8 +2,8 @@
 
 import json
 
-from agentledger.exporters.console import ConsoleExporter
-from agentledger.types import CostBreakdown, LLMEvent, TokenUsage
+from aimeter.exporters.console import ConsoleExporter
+from aimeter.types import CostBreakdown, LLMEvent, TokenUsage
 
 
 class TestConsoleExporter:

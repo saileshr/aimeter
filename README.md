@@ -1,10 +1,10 @@
 <p align="center">
-  <h1 align="center">AgentLedger</h1>
-  <p align="center"><strong>Your AI agents are burning money. AgentLedger shows you exactly how much.</strong></p>
+  <h1 align="center">AIMeter</h1>
+  <p align="center"><strong>Your AI agents are burning money. AIMeter shows you exactly how much.</strong></p>
   <p align="center">
     <a href="https://github.com/saileshr/agentmeter-sdk/actions"><img src="https://github.com/saileshr/agentmeter-sdk/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-    <a href="https://pypi.org/project/agentledger/"><img src="https://img.shields.io/pypi/v/agentledger" alt="PyPI"></a>
-    <a href="https://pypi.org/project/agentledger/"><img src="https://img.shields.io/pypi/pyversions/agentledger" alt="Python"></a>
+    <a href="https://pypi.org/project/aimeter/"><img src="https://img.shields.io/pypi/v/aimeter" alt="PyPI"></a>
+    <a href="https://pypi.org/project/aimeter/"><img src="https://img.shields.io/pypi/pyversions/aimeter" alt="Python"></a>
     <a href="https://github.com/saileshr/agentmeter-sdk/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License"></a>
   </p>
 </p>
@@ -30,20 +30,20 @@ We ran 10 identical tasks across 5 models. Here's what we found:
 > At 1,000 calls/day, choosing GPT-4o over GPT-4.1-nano costs an extra **$131/month** for the same tasks.
 
 <p align="center">
-  <img src="images/agentmeter-sdk-output.png" alt="AgentLedger cost comparison report" width="700">
+  <img src="images/agentmeter-sdk-output.png" alt="AIMeter cost comparison report" width="700">
 </p>
 
-AgentLedger is a lightweight Python SDK that tracks every LLM call, calculates the real cost, and connects it to business outcomes. Zero dependencies. Two lines of code. Works offline.
+AIMeter is a lightweight Python SDK that tracks every LLM call, calculates the real cost, and connects it to business outcomes. Zero dependencies. Two lines of code. Works offline.
 
 ## Quickstart (60 seconds)
 
 ```bash
-pip install agentledger[openai]
+pip install aimeter[openai]
 ```
 
 ```python
 import openai
-from agentledger import track_openai, MemoryExporter, configure
+from aimeter import track_openai, MemoryExporter, configure
 
 # 1. Set up tracking
 mem = MemoryExporter()
@@ -77,7 +77,7 @@ Every LLM call automatically records:
 | **Errors** | Failed calls with error messages and cost of retries |
 | **Outcomes** | Link agent costs to business results: "this call resolved a $12.50 ticket" |
 
-**Privacy by default** — AgentLedger tracks cost metadata only. No message content, prompts, or tool arguments are ever captured.
+**Privacy by default** — AIMeter tracks cost metadata only. No message content, prompts, or tool arguments are ever captured.
 
 ## Framework Support
 
@@ -92,15 +92,15 @@ Every LLM call automatically records:
 
 ```python
 # OpenAI
-from agentledger import track_openai
+from aimeter import track_openai
 client = track_openai(openai.OpenAI(), project="support-agent")
 
 # Anthropic
-from agentledger import track_anthropic
+from aimeter import track_anthropic
 client = track_anthropic(anthropic.Anthropic(), project="research-agent")
 
 # Any LLM (manual instrumentation)
-from agentledger import track_llm_call
+from aimeter import track_llm_call
 with track_llm_call(provider="cohere", model="command-r-plus") as call:
     response = my_llm_call(...)
     call.input_tokens = response.meta.tokens.input_tokens
@@ -109,10 +109,10 @@ with track_llm_call(provider="cohere", model="command-r-plus") as call:
 
 ## Cost-Per-Outcome Attribution
 
-This is what makes AgentLedger different. Not just "how much did I spend?" but **"how much did each business result cost?"**
+This is what makes AIMeter different. Not just "how much did I spend?" but **"how much did each business result cost?"**
 
 ```python
-from agentledger import record_outcome
+from aimeter import record_outcome
 
 # After your agent resolves a support ticket
 record_outcome(
@@ -128,10 +128,10 @@ record_outcome(
 
 ## Live Pricing for 300+ Models
 
-AgentLedger ships with built-in pricing for OpenAI, Anthropic, Google, and Mistral. Need more?
+AIMeter ships with built-in pricing for OpenAI, Anthropic, Google, and Mistral. Need more?
 
 ```python
-from agentledger import CostRegistry
+from aimeter import CostRegistry
 
 registry = CostRegistry()
 
@@ -139,7 +139,7 @@ registry = CostRegistry()
 registry.update_from_litellm()
 
 # Or fetch from your own endpoint
-registry.update_from_url("https://agentledger.ai/api/pricing.json")
+registry.update_from_url("https://aimeter.ai/api/pricing.json")
 
 # Or set manually
 registry.register("mycloud", "my-model", ModelPricing(
@@ -161,7 +161,7 @@ The SDK never phones home by default. Remote pricing updates are always opt-in.
                    │ records LLMEvent (tokens, cost, latency)
                    ▼
 ┌─────────────────────────────────────────────┐
-│          AgentLedger SDK (in-process)         │
+│          AIMeter SDK (in-process)         │
 │                                              │
 │  ┌──────────┐ ┌───────────┐ ┌────────────┐ │
 │  │ Cost     │ │ Tracker   │ │ Outcome    │ │
@@ -182,16 +182,16 @@ The SDK never phones home by default. Remote pricing updates are always opt-in.
 **Zero dependencies.** The core SDK uses only Python stdlib. Framework adapters (OpenAI, Anthropic) are optional extras.
 
 ```bash
-pip install agentledger            # core only — zero deps
-pip install agentledger[openai]    # + OpenAI SDK
-pip install agentledger[anthropic] # + Anthropic SDK
-pip install agentledger[all]       # everything
+pip install aimeter            # core only — zero deps
+pip install aimeter[openai]    # + OpenAI SDK
+pip install aimeter[anthropic] # + Anthropic SDK
+pip install aimeter[all]       # everything
 ```
 
 ## Configuration
 
 ```python
-from agentledger import configure, MemoryExporter
+from aimeter import configure, MemoryExporter
 
 mem = MemoryExporter()
 configure(
@@ -204,10 +204,10 @@ configure(
 Or via environment variables:
 
 ```bash
-export AGENTLEDGER_PROJECT=my-agent
-export AGENTLEDGER_EXPORT=console   # or "memory"
-export AGENTLEDGER_DEBUG=true       # log unknown models
-export AGENTLEDGER_ENABLED=false    # kill switch
+export AIMETER_PROJECT=my-agent
+export AIMETER_EXPORT=console   # or "memory"
+export AIMETER_DEBUG=true       # log unknown models
+export AIMETER_ENABLED=false    # kill switch
 ```
 
 ## Examples

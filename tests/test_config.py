@@ -1,14 +1,14 @@
-"""Tests for agentledger.config."""
+"""Tests for aimeter.config."""
 
 
-from agentledger.config import AgentLedgerConfig
-from agentledger.exporters.console import ConsoleExporter
-from agentledger.exporters.memory import MemoryExporter
+from aimeter.config import AIMeterConfig
+from aimeter.exporters.console import ConsoleExporter
+from aimeter.exporters.memory import MemoryExporter
 
 
-class TestAgentLedgerConfig:
+class TestAIMeterConfig:
     def test_defaults(self):
-        config = AgentLedgerConfig()
+        config = AIMeterConfig()
         assert config.project == "default"
         assert config.tags == {}
         assert config.enabled is True
@@ -17,40 +17,40 @@ class TestAgentLedgerConfig:
         assert isinstance(config.exporters[0], ConsoleExporter)
 
     def test_explicit_project(self):
-        config = AgentLedgerConfig(project="my-project")
+        config = AIMeterConfig(project="my-project")
         assert config.project == "my-project"
 
     def test_explicit_exporters(self):
         mem = MemoryExporter()
-        config = AgentLedgerConfig(exporters=[mem])
+        config = AIMeterConfig(exporters=[mem])
         assert config.exporters == [mem]
 
     def test_env_project(self, monkeypatch):
-        monkeypatch.setenv("AGENTLEDGER_PROJECT", "env-project")
-        config = AgentLedgerConfig()
+        monkeypatch.setenv("AIMETER_PROJECT", "env-project")
+        config = AIMeterConfig()
         assert config.project == "env-project"
 
     def test_explicit_overrides_env(self, monkeypatch):
-        monkeypatch.setenv("AGENTLEDGER_PROJECT", "env-project")
-        config = AgentLedgerConfig(project="explicit")
+        monkeypatch.setenv("AIMETER_PROJECT", "env-project")
+        config = AIMeterConfig(project="explicit")
         assert config.project == "explicit"
 
     def test_env_disabled(self, monkeypatch):
-        monkeypatch.setenv("AGENTLEDGER_ENABLED", "false")
-        config = AgentLedgerConfig()
+        monkeypatch.setenv("AIMETER_ENABLED", "false")
+        config = AIMeterConfig()
         assert config.enabled is False
 
     def test_env_debug(self, monkeypatch):
-        monkeypatch.setenv("AGENTLEDGER_DEBUG", "true")
-        config = AgentLedgerConfig()
+        monkeypatch.setenv("AIMETER_DEBUG", "true")
+        config = AIMeterConfig()
         assert config.debug is True
 
     def test_env_export_memory(self, monkeypatch):
-        monkeypatch.setenv("AGENTLEDGER_EXPORT", "memory")
-        config = AgentLedgerConfig()
+        monkeypatch.setenv("AIMETER_EXPORT", "memory")
+        config = AIMeterConfig()
         assert len(config.exporters) == 1
         assert isinstance(config.exporters[0], MemoryExporter)
 
     def test_disabled_config(self):
-        config = AgentLedgerConfig(enabled=False)
+        config = AIMeterConfig(enabled=False)
         assert config.enabled is False

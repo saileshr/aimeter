@@ -1,4 +1,4 @@
-"""Screenshot-ready terminal report for AgentLedger data.
+"""Screenshot-ready terminal report for AIMeter data.
 
 Renders a rich, formatted cost comparison report to the terminal
 using only stdlib (no rich/click dependency).
@@ -10,7 +10,7 @@ import sys
 from collections import defaultdict
 from typing import Any
 
-from agentledger.types import LLMEvent
+from aimeter.types import LLMEvent
 
 # ANSI color codes
 _BOLD = "\033[1m"
@@ -86,7 +86,7 @@ def _center(text: str, width: int) -> str:
 
 def print_report(
     events: list[LLMEvent],
-    title: str = "AgentLedger Cost Report",
+    title: str = "AIMeter Cost Report",
     file: Any = None,
 ) -> None:
     """Print a screenshot-ready cost comparison report.
@@ -267,4 +267,4 @@ def print_report(
             )
 
     out.write(f"\n{_BOLD}{_CYAN}{'─' * width}{_RESET}\n")
-    out.write(f"{_DIM}  Powered by AgentLedger — agentledger.ai{_RESET}\n\n")
+    out.write(f"{_DIM}  Powered by AIMeter — aimeter.ai{_RESET}\n\n")

@@ -1,8 +1,8 @@
-"""Tests for agentledger.outcome — business outcome attribution."""
+"""Tests for aimeter.outcome — business outcome attribution."""
 
-from agentledger.exporters.memory import MemoryExporter
-from agentledger.outcome import record_outcome
-from agentledger.tracker import configure, reset
+from aimeter.exporters.memory import MemoryExporter
+from aimeter.outcome import record_outcome
+from aimeter.tracker import configure, reset
 
 
 class TestRecordOutcome:

@@ -1,4 +1,4 @@
-# Contributing to AgentLedger
+# Contributing to AIMeter
 
 We're building the financial infrastructure for AI agents. Every contribution matters — from fixing a typo to adding a new framework adapter.
 
@@ -27,7 +27,7 @@ All tests use mocks — no API keys required. Tests must pass before merging.
 ## Project Structure
 
 ```
-src/agentledger/
+src/aimeter/
 ├── types.py          # Core data model (LLMEvent, TokenUsage, etc.)
 ├── cost.py           # Cost registry and calculation
 ├── config.py         # Configuration
@@ -56,7 +56,7 @@ Each adapter is ~20 lines of extraction logic. The pattern:
 3. Extract: `model`, `tokens` (input/output/cached), `tool_calls` (names only)
 4. Create an `LLMEvent` and call `tracker.record(event)`
 
-Look at `src/agentledger/adapters/openai.py` for the reference implementation.
+Look at `src/aimeter/adapters/openai.py` for the reference implementation.
 
 **Wanted adapters:**
 - LangChain (callback handler pattern)
@@ -77,14 +77,14 @@ Exporters implement a simple protocol: `export(events: list[LLMEvent])` and `shu
 
 ### Update model pricing
 
-Edit the `_BUILTIN_PRICING_RAW` dict in `src/agentledger/cost.py`. Prices are per 1,000 tokens. Include the source (provider pricing page URL) in your PR description.
+Edit the `_BUILTIN_PRICING_RAW` dict in `src/aimeter/cost.py`. Prices are per 1,000 tokens. Include the source (provider pricing page URL) in your PR description.
 
 ## Code Style
 
 - Python 3.10+ (use `X | Y` union syntax, `slots=True` on dataclasses)
 - Lint with `ruff` (config in `pyproject.toml`)
 - No external dependencies in core — only stdlib
-- Framework SDKs are optional extras (`pip install agentledger[openai]`)
+- Framework SDKs are optional extras (`pip install aimeter[openai]`)
 - Use `from __future__ import annotations` in every file
 - Privacy by default — never capture message content
 

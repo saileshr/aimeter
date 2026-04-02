@@ -1,8 +1,8 @@
 """Tests for the generic adapter."""
 
-from agentledger.adapters.generic import track_llm_call
-from agentledger.exporters.memory import MemoryExporter
-from agentledger.tracker import configure, reset
+from aimeter.adapters.generic import track_llm_call
+from aimeter.exporters.memory import MemoryExporter
+from aimeter.tracker import configure, reset
 
 
 class TestTrackLLMCall:

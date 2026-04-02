@@ -1,15 +1,15 @@
-"""Tests for agentledger.tracker — core engine."""
+"""Tests for aimeter.tracker — core engine."""
 
-from agentledger.config import AgentLedgerConfig
-from agentledger.exporters.memory import MemoryExporter
-from agentledger.tracker import Tracker, configure, get_tracker, reset
-from agentledger.types import CostBreakdown, LLMEvent, TokenUsage
+from aimeter.config import AIMeterConfig
+from aimeter.exporters.memory import MemoryExporter
+from aimeter.tracker import Tracker, configure, get_tracker, reset
+from aimeter.types import CostBreakdown, LLMEvent, TokenUsage
 
 
 class TestTracker:
     def test_record_enriches_cost(self):
         mem = MemoryExporter()
-        config = AgentLedgerConfig(exporters=[mem])
+        config = AIMeterConfig(exporters=[mem])
         tracker = Tracker(config)
 
         event = LLMEvent(
@@ -26,7 +26,7 @@ class TestTracker:
 
     def test_record_preserves_existing_cost(self):
         mem = MemoryExporter()
-        config = AgentLedgerConfig(exporters=[mem])
+        config = AIMeterConfig(exporters=[mem])
         tracker = Tracker(config)
 
         custom_cost = CostBreakdown(input_cost_usd=0.99)
@@ -41,7 +41,7 @@ class TestTracker:
 
     def test_record_applies_default_project(self):
         mem = MemoryExporter()
-        config = AgentLedgerConfig(project="my-project", exporters=[mem])
+        config = AIMeterConfig(project="my-project", exporters=[mem])
         tracker = Tracker(config)
 
         event = LLMEvent(provider="openai", model="gpt-4o")
@@ -50,7 +50,7 @@ class TestTracker:
 
     def test_record_applies_default_tags(self):
         mem = MemoryExporter()
-        config = AgentLedgerConfig(tags={"team": "cx"}, exporters=[mem])
+        config = AIMeterConfig(tags={"team": "cx"}, exporters=[mem])
         tracker = Tracker(config)
 
         event = LLMEvent()
@@ -59,7 +59,7 @@ class TestTracker:
 
     def test_record_does_not_overwrite_event_tags(self):
         mem = MemoryExporter()
-        config = AgentLedgerConfig(tags={"team": "cx"}, exporters=[mem])
+        config = AIMeterConfig(tags={"team": "cx"}, exporters=[mem])
         tracker = Tracker(config)
 
         event = LLMEvent(tags={"env": "prod"})
@@ -68,7 +68,7 @@ class TestTracker:
 
     def test_disabled_tracker(self):
         mem = MemoryExporter()
-        config = AgentLedgerConfig(enabled=False, exporters=[mem])
+        config = AIMeterConfig(enabled=False, exporters=[mem])
         tracker = Tracker(config)
 
         event = LLMEvent(provider="openai", model="gpt-4o",
@@ -84,7 +84,7 @@ class TestTracker:
             def shutdown(self):
                 pass
 
-        config = AgentLedgerConfig(exporters=[BrokenExporter()])
+        config = AIMeterConfig(exporters=[BrokenExporter()])
         tracker = Tracker(config)
         # Should not raise
         tracker.record(LLMEvent())
@@ -92,7 +92,7 @@ class TestTracker:
     def test_multiple_exporters(self):
         mem1 = MemoryExporter()
         mem2 = MemoryExporter()
-        config = AgentLedgerConfig(exporters=[mem1, mem2])
+        config = AIMeterConfig(exporters=[mem1, mem2])
         tracker = Tracker(config)
 
         tracker.record(LLMEvent())

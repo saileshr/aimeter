@@ -1,7 +1,7 @@
 """Tests for the memory exporter."""
 
-from agentledger.exporters.memory import MemoryExporter
-from agentledger.types import CostBreakdown, LLMEvent, TokenUsage
+from aimeter.exporters.memory import MemoryExporter
+from aimeter.types import CostBreakdown, LLMEvent, TokenUsage
 
 
 class TestMemoryExporter:

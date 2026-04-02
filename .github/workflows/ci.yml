@@ -28,7 +28,7 @@ jobs:
         run: ruff check src/ tests/
 
       - name: Test
-        run: pytest --cov=agentledger --cov-report=term-missing -q
+        run: pytest --cov=aimeter --cov-report=term-missing -q
 
       - name: Upload coverage
         if: matrix.python-version == '3.12'

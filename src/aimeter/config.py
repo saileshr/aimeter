@@ -1,4 +1,4 @@
-"""Configuration for AgentLedger.
+"""Configuration for AIMeter.
 
 Resolution order: explicit kwargs > environment variables > defaults.
 """
@@ -10,12 +10,12 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from agentledger.exporters._base import Exporter
+    from aimeter.exporters._base import Exporter
 
 
 @dataclass
-class AgentLedgerConfig:
-    """Configuration for the AgentLedger tracker.
+class AIMeterConfig:
+    """Configuration for the AIMeter tracker.
 
     Attributes:
         project: Default project name for events.
@@ -34,20 +34,20 @@ class AgentLedgerConfig:
     def __post_init__(self) -> None:
         # Environment variable overrides
         if not self.project:
-            self.project = os.environ.get("AGENTLEDGER_PROJECT", "default")
-        if os.environ.get("AGENTLEDGER_ENABLED", "").lower() == "false":
+            self.project = os.environ.get("AIMETER_PROJECT", "default")
+        if os.environ.get("AIMETER_ENABLED", "").lower() == "false":
             self.enabled = False
-        if os.environ.get("AGENTLEDGER_DEBUG", "").lower() == "true":
+        if os.environ.get("AIMETER_DEBUG", "").lower() == "true":
             self.debug = True
 
         # Default exporter if none specified
         if not self.exporters:
-            export_type = os.environ.get("AGENTLEDGER_EXPORT", "console").lower()
+            export_type = os.environ.get("AIMETER_EXPORT", "console").lower()
             if export_type == "memory":
-                from agentledger.exporters.memory import MemoryExporter
+                from aimeter.exporters.memory import MemoryExporter
 
                 self.exporters = [MemoryExporter()]
             else:
-                from agentledger.exporters.console import ConsoleExporter
+                from aimeter.exporters.console import ConsoleExporter
 
                 self.exporters = [ConsoleExporter()]

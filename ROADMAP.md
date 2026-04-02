@@ -1,4 +1,4 @@
-# AgentLedger Roadmap
+# AIMeter Roadmap
 
 ## MVP (Now)
 
@@ -26,8 +26,8 @@ More adapters, streaming, and the CLI.
 - [ ] OpenAI streaming support
 - [ ] Anthropic streaming support
 - [ ] File exporter (JSON-lines to disk with rotation)
-- [ ] CLI: `agentledger report` — terminal cost summary from event files
-- [ ] CLI: `agentledger models` — list all known models and pricing
+- [ ] CLI: `aimeter report` — terminal cost summary from event files
+- [ ] CLI: `aimeter models` — list all known models and pricing
 - [ ] OpenTelemetry exporter (emit as OTEL spans)
 - [ ] Async adapter support (AsyncOpenAI, AsyncAnthropic)
 
@@ -38,7 +38,7 @@ Cost-per-outcome analytics and the hosted dashboard.
 - [ ] AgentRun aggregation (group events into runs with totals)
 - [ ] Cost-per-outcome analytics (query historical cost/value ratios)
 - [ ] Hosted dashboard (real-time cost per agent, per project, fleet overview)
-- [ ] HTTP exporter (POST events to AgentLedger cloud)
+- [ ] HTTP exporter (POST events to AIMeter cloud)
 - [ ] Cost anomaly detection (alert on spend spikes, runaway agents)
 - [ ] Budget limits and alerts (hard caps, warnings at thresholds)
 - [ ] Model recommendation engine (suggest cheaper models for equivalent tasks)
