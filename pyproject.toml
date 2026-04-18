@@ -27,8 +27,9 @@ dependencies = []
 [project.optional-dependencies]
 openai = ["openai>=1.0"]
 anthropic = ["anthropic>=0.30"]
+gemini = ["google-genai>=0.3"]
 langchain = ["langchain-core>=0.2"]
-all = ["aimeter[openai,anthropic,langchain]"]
+all = ["aimeter[openai,anthropic,gemini,langchain]"]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",

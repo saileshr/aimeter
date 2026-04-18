@@ -30,6 +30,7 @@ from aimeter.types import CostBreakdown, LLMEvent, Outcome, TokenUsage
 _LAZY_IMPORTS = {
     "track_openai": ("aimeter.adapters.openai", "track_openai"),
     "track_anthropic": ("aimeter.adapters.anthropic", "track_anthropic"),
+    "track_gemini": ("aimeter.adapters.gemini", "track_gemini"),
 }
 
 
@@ -68,6 +69,7 @@ __all__ = [
     # Adapters
     "track_openai",
     "track_anthropic",
+    "track_gemini",
     "track_llm_call",
     # Outcome
     "record_outcome",
