@@ -1,287 +1,60 @@
-# CLAUDE.md — AIMeter Development Guide
+# CLAUDE.md
 
-## What is AIMeter?
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-AIMeter is open-source financial observability for AI agents. It tracks the real cost of running AI agents in production — per-agent, per-task, per-conversation — across any framework.
+## What AIMeter is
 
-Think of it as **the missing cost layer for agentic AI**: not just token counting, but full economic visibility including tool calls, retries, latency, and cost-per-outcome attribution.
+A Python SDK that wraps LLM SDK clients (OpenAI, Anthropic, …) to record every call's cost, tokens, latency, and tool-call names into a process-wide tracker, then fan them out to exporters. Zero dependencies in the core; framework SDKs are optional extras.
 
----
+See `README.md` for the user-facing pitch and `CONTRIBUTING.md` for contributor workflow — don't duplicate them here.
 
-## Project Structure
+## Commands
 
-```
-aimeter/
-├── aimeter/              # Core Python SDK
-│   ├── __init__.py          # Public API exports
-│   ├── tracker.py           # Core tracking engine
-│   ├── cost_engine.py       # Token → dollar cost calculation
-│   ├── cost_models.yaml     # LLM pricing registry (OpenAI, Anthropic, Google, etc.)
-│   ├── events.py            # Event schema and serialization
-│   ├── adapters/            # Framework-specific adapters
-│   │   ├── langchain.py     # LangChain integration
-│   │   ├── openai_adapter.py # OpenAI SDK wrapper
-│   │   ├── anthropic.py     # Anthropic SDK wrapper
-│   │   ├── crewai.py        # CrewAI integration
-│   │   └── autogen.py       # AutoGen integration
-│   ├── exporters/           # Where metered data goes
-│   │   ├── console.py       # Pretty-print to terminal
-│   │   ├── json_file.py     # JSON file output
-│   │   └── http.py          # POST to AIMeter server or custom endpoint
-│   └── outcomes.py          # Outcome attribution (cost-per-outcome mapping)
-├── server/                  # Optional ingest + dashboard backend
-│   ├── api/                 # FastAPI endpoints
-│   ├── storage/             # SQLite (local) / ClickHouse (production)
-│   └── dashboard/           # React dashboard
-├── examples/                # Working examples for each framework
-├── tests/                   # Test suite
-├── docs/                    # Documentation
-└── pyproject.toml           # Package configuration
+```bash
+pip install -e ".[dev]"         # dev install (src layout — editable required for imports to work)
+pytest                          # full suite
+pytest tests/test_cost.py -v    # single file
+pytest -k "test_openai"         # by name pattern
+ruff check src/ tests/          # lint
+ruff format src/ tests/         # format
 ```
 
-> **Note**: The actual file tree may have evolved since this was written. Run `find . -type f -name "*.py" | head -40` to see current state.
-
----
+All tests mock the underlying SDKs — no API keys required, no network.
 
 ## Architecture
 
+Layout is **src-style**: package is `src/aimeter/`, tests import as `from aimeter import ...`.
+
+Event flow for every tracked LLM call:
+
 ```
-┌─────────────────────────────────────────────────────┐
-│                    Agent Runtime                      │
-│  (LangChain / CrewAI / AutoGen / Custom)             │
-│                                                       │
-│  ┌─────────────────────────────────────────────┐     │
-│  │         AIMeter SDK (lightweight)         │     │
-│  │  - Wraps LLM calls, tool calls, agent steps │     │
-│  │  - Captures: tokens, latency, cost, outcome │     │
-│  │  - Async, non-blocking, <1ms overhead        │     │
-│  └──────────────────┬──────────────────────────┘     │
-└─────────────────────┼───────────────────────────────┘
-                      │ events (batched, async)
-                      ▼
-┌─────────────────────────────────────────────────────┐
-│              Ingest Layer                             │
-│  - Schema validation & enrichment                    │
-│  - Cost calculation engine (maps tokens → $)         │
-│  - Outcome correlation engine                        │
-└──────────────────┬──────────────────────────────────┘
-                   │
-                   ▼
-┌─────────────────────────────────────────────────────┐
-│              Data Layer                               │
-│  - SQLite (local dev) / ClickHouse (production)      │
-│  - Time-series metrics & event store                 │
-│  - Aggregation engine for dashboards                 │
-│  - Cost model registry (pricing per model/provider)  │
-└──────────────────┬──────────────────────────────────┘
-                   │
-                   ▼
-┌─────────────────────────────────────────────────────┐
-│              Application Layer                        │
-│  - Dashboard (React + Recharts)                      │
-│  - REST API (FastAPI)                                │
-│  - Alerting engine                                   │
-│  - Reports & exports                                 │
-└─────────────────────────────────────────────────────┘
+user code → adapter (wraps SDK client)
+          → builds LLMEvent (model, tokens, tool_call names, latency)
+          → tracker.record(event)
+              → CostRegistry enriches with USD cost
+              → fans out to each configured Exporter
 ```
 
----
+Key modules and their single responsibility:
 
-## Design Principles
+- `types.py` — core dataclasses: `LLMEvent`, `TokenUsage`, `ToolCall`, `Outcome`. Everything else flows through these. Use `slots=True` and `from __future__ import annotations`.
+- `cost.py` — `CostRegistry` + `_BUILTIN_PRICING_RAW` dict (prices per 1K tokens). **Pricing is inline Python, not YAML** — edit the dict directly to update/add models.
+- `config.py` — `configure(project=..., exporters=[...], tags=...)` sets process-wide state. Also reads `AIMETER_*` env vars.
+- `tracker.py` — global singleton tracker. `record()` enriches with cost and dispatches to exporters. `reset()` is the test hook — call it in `teardown_method` to clear state between tests.
+- `outcome.py` — `record_outcome(run_id=..., outcome=..., value_usd=..., metadata=...)` links a prior event to a business outcome.
+- `report.py` — terminal summary formatter used by `MemoryExporter.summary()`.
+- `adapters/` — one file per upstream SDK. Each is a **thin (~20 line) extraction wrapper**: wrap the client's entry point, call through, extract `model` / token counts / tool-call names, build `LLMEvent`, pass to tracker. No proxying, no feature recreation. `openai.py` is the reference pattern; `generic.py` provides the `track_llm_call` context manager for SDKs without a dedicated adapter.
+- `exporters/` — implement `export(events: list[LLMEvent])` and `shutdown()`. `_base.py` has the protocol; `console.py` writes to stderr, `memory.py` keeps events in a list for tests and local reports.
 
-These are non-negotiable. Every PR should respect them.
+## Invariants (don't break these)
 
-1. **Zero-config start.** `pip install aimeter` + 2 lines of code must produce useful output. No API keys, no server setup, no config files required for basic local usage.
+- **Zero deps in core.** `src/aimeter/` (excluding `adapters/`) must import only stdlib. Adapter modules may import their target SDK, but must be gated behind the extras in `pyproject.toml` (`aimeter[openai]`, etc.) and must not be imported eagerly from `__init__.py`.
+- **Privacy.** Never capture message content, prompt text, or tool-call *arguments*. Tool/function *names* are OK. This is a product-level promise, surfaced in the README.
+- **Thin adapters.** If an adapter starts recreating SDK features, it's wrong — extract and emit, nothing more.
+- **Non-blocking.** Tracking must never raise into user code. Swallow and log (behind `AIMETER_DEBUG`) rather than bubble up.
+- **`from __future__ import annotations`** in every file; 3.10+ union syntax (`X | Y`); `slots=True` on dataclasses.
 
-2. **Never block the agent.** All telemetry is async and fire-and-forget. AIMeter must add <1ms overhead to any agent invocation. If it can't send an event, it silently drops it. The agent's job is more important than our metrics.
+## Repo wiring
 
-3. **Privacy by default.** AIMeter captures cost metadata (tokens, model, latency, tool names), NOT conversation content. Prompt/response capture is opt-in only and clearly documented.
-
-4. **Framework-agnostic core.** The core tracker and cost engine know nothing about LangChain, OpenAI, or any specific framework. Adapters are thin wrappers that translate framework-specific events into AIMeter's unified event schema.
-
-5. **Outcome-aware.** This is what differentiates AIMeter from token counters. We don't just track "this call used 1,500 tokens." We enable mapping costs to business outcomes: "this agent spent $0.47 to resolve this support ticket."
-
-6. **Accuracy over estimation.** Cost calculations must use actual token counts from API responses, not estimates. The cost model registry must reflect real, current provider pricing.
-
----
-
-## SDK Target API
-
-This is the developer experience we're building toward. All code changes should move us closer to this:
-
-```python
-# LangChain — 2 lines to add
-from aimeter import track
-from langchain.agents import AgentExecutor
-
-agent = AgentExecutor(agent=my_agent, tools=my_tools)
-tracked_agent = track(agent, project="customer-support", tags={"team": "cx"})
-
-result = tracked_agent.invoke({"input": "Help me reset my password"})
-# All costs, latency, tool calls now tracked automatically.
-```
-
-```python
-# OpenAI direct
-from aimeter import track_openai
-import openai
-
-client = track_openai(openai.OpenAI(), project="sales-agent")
-# Every completion, tool call, and cost is metered transparently.
-```
-
-```python
-# Outcome attribution
-from aimeter import record_outcome
-
-record_outcome(
-    agent_run_id=result.run_id,
-    outcome="ticket_resolved",
-    value_usd=12.50,
-    metadata={"ticket_id": "T-1234", "resolution_time_min": 3}
-)
-```
-
-```python
-# Local report (no server needed)
-from aimeter import report
-
-report(last="7d")
-# Prints a cost breakdown to the terminal: per-agent, per-model, per-project
-```
-
----
-
-## Cost Model Registry
-
-The file `cost_models.yaml` contains current LLM pricing. It must be kept up to date.
-
-```yaml
-# Format:
-provider:
-  model-name:
-    input_per_1k: <float>    # USD per 1K input tokens
-    output_per_1k: <float>   # USD per 1K output tokens
-    cached_input_per_1k: <float>  # optional, for providers that support prompt caching
-```
-
-When updating pricing:
-- Always include the date of the change in the git commit message
-- Link to the provider's pricing page as a source
-- Do not remove old models — mark them as deprecated with a comment
-
----
-
-## Tech Stack
-
-| Layer | Technology | Notes |
-|---|---|---|
-| SDK | Python 3.10+ | Primary SDK language. TypeScript SDK is a future goal. |
-| API | FastAPI | Async, auto-generates OpenAPI docs |
-| Local storage | SQLite | Zero-config local dev experience |
-| Production storage | ClickHouse or TimescaleDB | For the hosted/self-hosted server |
-| Dashboard | React + Recharts | Real-time, interactive |
-| Package | PyPI (`aimeter`) | Published via GitHub Actions |
-| CI/CD | GitHub Actions | Lint, test, publish on tag |
-| Testing | pytest + pytest-asyncio | All async code must have async tests |
-
----
-
-## Development Setup
-
-```bash
-# Clone and install in dev mode
-git clone https://github.com/<org>/aimeter.git
-cd aimeter
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-
-# Run tests
-pytest
-
-# Run linting
-ruff check .
-ruff format .
-
-# Run the example
-python examples/langchain_basic.py
-```
-
----
-
-## How to Contribute
-
-### Adding a new framework adapter
-
-1. Create a new file in `aimeter/adapters/`
-2. Implement the adapter by wrapping the framework's LLM/tool calling interface
-3. The adapter should emit events using `aimeter.events.AgentEvent` — the unified schema
-4. Add a working example in `examples/`
-5. Add tests in `tests/adapters/`
-6. Update the framework support matrix in README.md
-
-The adapter should be a thin wrapper. All cost calculation, storage, and export logic lives in the core — adapters just capture raw events (model name, token counts, latency, tool calls).
-
-### Updating the cost model registry
-
-1. Edit `aimeter/cost_models.yaml`
-2. Include the provider's pricing page URL in your commit message
-3. Run `pytest tests/test_cost_engine.py` to verify calculations still pass
-
-### Working on the dashboard
-
-The dashboard is in `server/dashboard/` and is a standard React app.
-
-```bash
-cd server/dashboard
-npm install
-npm run dev
-```
-
-### Commit conventions
-
-- Use conventional commits: `feat:`, `fix:`, `docs:`, `refactor:`, `test:`
-- Keep PRs focused — one feature or fix per PR
-- Include tests for new functionality
-- Update relevant examples if the API surface changes
-
----
-
-## Roadmap
-
-### MVP (current focus)
-- Core tracking engine with LangChain and OpenAI adapters
-- Local cost reporting (terminal + JSON export)
-- Cost model registry with major providers
-- Working examples and documentation
-
-### V2 (next)
-- Cost-per-outcome attribution engine
-- FastAPI server for centralized collection
-- React dashboard with real-time metrics
-- Alerting for cost anomalies and runaway agents
-- CrewAI, AutoGen, and Anthropic adapters
-
-### V3 (future)
-- Usage-based billing primitives for agent builders
-- Multi-tenant metering
-- Budget controls and spend limits per agent/project
-- TypeScript SDK
-- ClickHouse backend for production-scale deployments
-
----
-
-## Key Files to Understand First
-
-If you're new to the codebase, read these in order:
-
-1. `aimeter/events.py` — the unified event schema. Everything flows through this.
-2. `aimeter/cost_engine.py` — how tokens get converted to dollars.
-3. `aimeter/tracker.py` — the core tracking logic.
-4. `aimeter/adapters/langchain.py` — the most complete adapter, use as a reference.
-5. `examples/langchain_basic.py` — the simplest end-to-end usage.
-
----
-
-*AIMeter is open-source under the Apache 2.0 license. Contributions welcome.*
+- Package name on PyPI: `aimeter`. GitHub repo: `saileshr/agentmeter-sdk` (historical name mismatch — don't "fix" it in URLs without checking).
+- `ROADMAP.md` is the source of truth for what's planned vs. shipped. Current shipped adapters: OpenAI, Anthropic, generic. LangChain / CrewAI / AutoGen are planned, not implemented — don't reference them as if they exist.
