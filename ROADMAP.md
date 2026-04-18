@@ -57,4 +57,4 @@ Billing infrastructure for agent builders.
 
 ---
 
-Have ideas? [Open a feature request](https://github.com/saileshr/agentmeter-sdk/issues/new?template=feature_request.yml) or start a discussion.
+Have ideas? [Open a feature request](https://github.com/saileshr/aimeter/issues/new?template=feature_request.yml) or start a discussion.

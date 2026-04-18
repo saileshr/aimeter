@@ -5,8 +5,8 @@ We're building the financial infrastructure for AI agents. Every contribution ma
 ## Getting Started
 
 ```bash
-git clone https://github.com/saileshr/agentmeter-sdk.git
-cd agentmeter-sdk
+git clone https://github.com/saileshr/aimeter.git
+cd aimeter
 pip install -e ".[dev]"
 pytest
 ```

@@ -38,8 +38,8 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/saileshr/agentmeter-sdk"
-Repository = "https://github.com/saileshr/agentmeter-sdk"
+Homepage = "https://github.com/saileshr/aimeter"
+Repository = "https://github.com/saileshr/aimeter"
 
 [tool.setuptools.packages.find]
 where = ["src"]

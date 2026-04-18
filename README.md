@@ -2,10 +2,10 @@
   <h1 align="center">AIMeter</h1>
   <p align="center"><strong>Your AI agents are burning money. AIMeter shows you exactly how much.</strong></p>
   <p align="center">
-    <a href="https://github.com/saileshr/agentmeter-sdk/actions"><img src="https://github.com/saileshr/agentmeter-sdk/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+    <a href="https://github.com/saileshr/aimeter/actions"><img src="https://github.com/saileshr/aimeter/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
     <a href="https://pypi.org/project/aimeter/"><img src="https://img.shields.io/pypi/v/aimeter" alt="PyPI"></a>
     <a href="https://pypi.org/project/aimeter/"><img src="https://img.shields.io/pypi/pyversions/aimeter" alt="Python"></a>
-    <a href="https://github.com/saileshr/agentmeter-sdk/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License"></a>
+    <a href="https://github.com/saileshr/aimeter/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue" alt="License"></a>
   </p>
 </p>
 

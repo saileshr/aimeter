@@ -56,5 +56,5 @@ Key modules and their single responsibility:
 
 ## Repo wiring
 
-- Package name on PyPI: `aimeter`. GitHub repo: `saileshr/agentmeter-sdk` (historical name mismatch — don't "fix" it in URLs without checking).
+- Package name on PyPI: `aimeter`. GitHub repo: `saileshr/aimeter`.
 - `ROADMAP.md` is the source of truth for what's planned vs. shipped. Current shipped adapters: OpenAI, Anthropic, generic. LangChain / CrewAI / AutoGen are planned, not implemented — don't reference them as if they exist.
