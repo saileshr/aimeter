@@ -67,3 +67,30 @@ class TestMemoryExporter:
         s = exporter.summary()
         assert s["event_count"] == 0
         assert s["total_cost_usd"] == 0.0
+
+    def test_summary_includes_performance_key(self):
+        exporter = MemoryExporter()
+        exporter.export([
+            LLMEvent(
+                provider="openai",
+                model="gpt-4o",
+                tokens=TokenUsage(output_tokens=50),
+                latency_ms=100.0,
+            ),
+        ])
+        s = exporter.summary()
+        perf = s["performance"]
+        assert set(perf.keys()) == {
+            "global", "errors", "by_model", "by_provider", "by_project", "by_tag",
+        }
+        assert perf["global"] is not None
+
+    def test_empty_summary_performance_shape(self):
+        exporter = MemoryExporter()
+        perf = exporter.summary()["performance"]
+        assert perf["global"] is None
+        assert perf["errors"] == {"count": 0, "rate": 0.0}
+        assert perf["by_model"] == {}
+        assert perf["by_provider"] == {}
+        assert perf["by_project"] == {}
+        assert perf["by_tag"] == {}

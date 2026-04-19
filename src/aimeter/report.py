@@ -10,6 +10,7 @@ import sys
 from collections import defaultdict
 from typing import Any
 
+from aimeter.performance import compute_performance
 from aimeter.types import LLMEvent
 
 # ANSI color codes
@@ -70,6 +71,58 @@ def _color_for_rank(rank: int, total: int) -> str:
     if rank == total - 1:
         return _RED
     return _YELLOW
+
+
+def _print_performance(events: list[LLMEvent], out: Any) -> None:
+    """Render a Performance section (global + per-provider)."""
+    perf = compute_performance(events)
+    g = perf.get("global")
+    if g is None:
+        return
+
+    out.write(f"  {_BOLD}{_WHITE}Performance{_RESET}\n")
+    out.write(f"  {_DIM}{'─' * 64}{_RESET}\n")
+
+    lat = g["latency_ms"]
+    out.write(
+        f"  {_DIM}Latency (ms){_RESET}  "
+        f"p50 {_BOLD}{lat['p50']:.0f}{_RESET}  "
+        f"p95 {_BOLD}{lat['p95']:.0f}{_RESET}  "
+        f"p99 {_BOLD}{lat['p99']:.0f}{_RESET}  "
+        f"{_DIM}(min {lat['min']:.0f} / mean {lat['mean']:.0f} / max {lat['max']:.0f}){_RESET}\n"
+    )
+
+    tp = g["throughput"]
+    rps = f"{tp['requests_per_sec']:.2f}" if tp["requests_per_sec"] is not None else "n/a"
+    tps = f"{tp['output_tokens_per_sec']:.1f}" if tp["output_tokens_per_sec"] is not None else "n/a"
+    out.write(
+        f"  {_DIM}Throughput{_RESET}    "
+        f"{_BOLD}{rps}{_RESET} req/s  "
+        f"{_BOLD}{tps}{_RESET} out-tok/s  "
+        f"{_DIM}(window {tp['window_seconds']:.1f}s){_RESET}\n"
+    )
+
+    err = perf["errors"]
+    if err["count"]:
+        out.write(
+            f"  {_DIM}Errors{_RESET}        "
+            f"{_RED}{err['count']}{_RESET} "
+            f"{_DIM}({err['rate'] * 100:.1f}% of non-outcome events){_RESET}\n"
+        )
+
+    by_prov = perf["by_provider"]
+    if len(by_prov) > 1:
+        out.write("\n")
+        out.write(f"  {_DIM}By provider{_RESET}\n")
+        for name, s in sorted(by_prov.items()):
+            plat = s["latency_ms"]
+            out.write(
+                f"    {name:<20} "
+                f"p50 {plat['p50']:.0f}ms  p95 {plat['p95']:.0f}ms  "
+                f"{_DIM}({s['count']} calls){_RESET}\n"
+            )
+
+    out.write("\n")
 
 
 def _center(text: str, width: int) -> str:
@@ -227,6 +280,8 @@ def print_report(
         )
 
     out.write("\n")
+
+    _print_performance(events, out)
 
     # Token breakdown
     out.write(f"  {_BOLD}{_WHITE}Token Breakdown{_RESET}\n")

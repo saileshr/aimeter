@@ -92,6 +92,15 @@ class LLMEvent:
             "metadata": self.metadata,
         }
 
+    @property
+    def output_tokens_per_sec(self) -> float | None:
+        """Output-token throughput for this call; None if undefined."""
+        if self.latency_ms <= 0:
+            return None
+        if self.tokens.output_tokens <= 0:
+            return None
+        return self.tokens.output_tokens / (self.latency_ms / 1000.0)
+
 
 @dataclass(frozen=True, slots=True)
 class Outcome:

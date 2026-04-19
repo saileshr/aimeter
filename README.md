@@ -61,7 +61,7 @@ response = client.chat.completions.create(
 # See what you spent
 print(f"Cost: ${mem.total_cost:.4f}")
 print(f"Tokens: {mem.total_tokens}")
-print(mem.summary())
+print(mem.summary())  # includes a "performance" block: p50/p95/p99 latency, throughput, errors
 ```
 
 ## What it tracks
@@ -73,6 +73,7 @@ Every LLM call automatically records:
 | **Token costs** | Input, output, and cached token counts with USD breakdown |
 | **Model & provider** | Which model handled each call (GPT-4o, Claude Sonnet 4, etc.) |
 | **Latency** | Per-call duration in milliseconds |
+| **Performance** | Aggregate latency percentiles (p50/p95/p99), requests/sec, output tokens/sec, error rate — global and per model/provider/project/tag |
 | **Tool calls** | Function/tool names invoked (names only — never arguments, for privacy) |
 | **Errors** | Failed calls with error messages and cost of retries |
 | **Outcomes** | Link agent costs to business results: "this call resolved a $12.50 ticket" |

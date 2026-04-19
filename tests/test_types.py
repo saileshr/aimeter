@@ -90,6 +90,29 @@ class TestLLMEvent:
         }
         assert set(d.keys()) == expected_keys
 
+    def test_output_tokens_per_sec_happy_path(self):
+        e = LLMEvent(
+            tokens=TokenUsage(output_tokens=150),
+            latency_ms=1000.0,
+        )
+        assert e.output_tokens_per_sec == 150.0
+
+    def test_output_tokens_per_sec_zero_latency(self):
+        e = LLMEvent(tokens=TokenUsage(output_tokens=150), latency_ms=0.0)
+        assert e.output_tokens_per_sec is None
+
+    def test_output_tokens_per_sec_negative_latency(self):
+        e = LLMEvent(tokens=TokenUsage(output_tokens=150), latency_ms=-5.0)
+        assert e.output_tokens_per_sec is None
+
+    def test_output_tokens_per_sec_zero_tokens(self):
+        e = LLMEvent(tokens=TokenUsage(output_tokens=0), latency_ms=500.0)
+        assert e.output_tokens_per_sec is None
+
+    def test_output_tokens_per_sec_not_in_to_dict(self):
+        e = LLMEvent(tokens=TokenUsage(output_tokens=150), latency_ms=1000.0)
+        assert "output_tokens_per_sec" not in e.to_dict()
+
 
 class TestOutcome:
     def test_defaults(self):

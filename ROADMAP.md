@@ -16,6 +16,7 @@ The open-source SDK for agent cost tracking. Works locally, zero dependencies, t
 - [x] Terminal cost report (screenshot-ready)
 - [x] Configuration via code and environment variables
 - [x] Model comparison demo
+- [x] Performance metrics (latency percentiles, throughput, error rate) in memory-exporter summary and terminal report
 
 ## V1.1 (Next)
 

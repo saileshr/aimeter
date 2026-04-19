@@ -42,7 +42,8 @@ Key modules and their single responsibility:
 - `config.py` — `configure(project=..., exporters=[...], tags=...)` sets process-wide state. Also reads `AIMETER_*` env vars.
 - `tracker.py` — global singleton tracker. `record()` enriches with cost and dispatches to exporters. `reset()` is the test hook — call it in `teardown_method` to clear state between tests.
 - `outcome.py` — `record_outcome(run_id=..., outcome=..., value_usd=..., metadata=...)` links a prior event to a business outcome.
-- `report.py` — terminal summary formatter used by `MemoryExporter.summary()`.
+- `report.py` — terminal summary formatter. Reads events, delegates perf aggregation to `performance.compute_performance`.
+- `performance.py` — pure aggregator over a list of events: latency percentiles (nearest-rank), throughput over first→last timestamp span, error rate; broken down by model/provider/project/tag key. Stdlib-only. Consumed by `MemoryExporter.summary()` (which returns the dict under a `"performance"` key) and by `report.py`.
 - `adapters/` — one file per upstream SDK. Each is a **thin (~20 line) extraction wrapper**: wrap the client's entry point, call through, extract `model` / token counts / tool-call names, build `LLMEvent`, pass to tracker. No proxying, no feature recreation. `openai.py` is the reference pattern; `generic.py` provides the `track_llm_call` context manager for SDKs without a dedicated adapter.
 - `exporters/` — implement `export(events: list[LLMEvent])` and `shutdown()`. `_base.py` has the protocol; `console.py` writes to stderr, `memory.py` keeps events in a list for tests and local reports.
 

@@ -34,6 +34,7 @@ src/aimeter/
 ├── tracker.py        # Core engine
 ├── outcome.py        # Outcome attribution
 ├── report.py         # Terminal report formatter
+├── performance.py    # Aggregate perf stats (latency percentiles, throughput)
 ├── adapters/         # Framework adapters (one file per framework)
 │   ├── openai.py
 │   ├── anthropic.py

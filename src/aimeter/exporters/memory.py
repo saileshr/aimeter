@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from aimeter.performance import compute_performance
 from aimeter.types import LLMEvent
 
 
@@ -43,4 +44,5 @@ class MemoryExporter:
             "total_tokens": self.total_tokens,
             "models_used": list({e.model for e in self.events if e.model}),
             "providers_used": list({e.provider for e in self.events if e.provider}),
+            "performance": compute_performance(self.events),
         }
